@@ -1,0 +1,178 @@
+Version: 2.0
+
+#########################
+# Alternatives Section
+#
+
+Alternatives: &alternatives
+# Here, we list all the alternatives, together with their attributes. 
+# We can use these attributes later in the file when defining 
+# preferenceFunctions. The attributes can be quantitative or 
+# qualitative.
+  Sony Alpha a6300:
+    cena: 4399
+    rozdzielczosc: 24.2
+    zakres: 100.51200
+    obiektyw: 1
+  Sony Alpha a5100:
+    cena: 1999
+    rozdzielczosc: 24.3
+    zakres: 100.25600
+    obiektyw: 1
+  Sony Alpha a6000:
+    cena: 2399
+    rozdzielczosc: 24.3
+    zakres: 100.25600
+    obiektyw: 1
+  Sony Alpha a7 II:
+    cena: 4999
+    rozdzielczosc: 24.3
+    zakres: 100.25600
+    obiektyw: 0
+  Sony Alpha a7K - ILCE-7K:
+    cena: 3495
+    rozdzielczosc: 24.3
+    zakres: 100.25600
+    obiektyw: 0
+  Fujifilm X-A10:
+    cena: 1739
+    rozdzielczosc: 16.3
+    zakres: 100.25600
+    obiektyw: 1
+  Panasonic DC-GH5S:
+    cena: 10199
+    rozdzielczosc: 10.2
+    zakres: 160.51200
+    obiektyw: 0
+  Panasonic Lumix DMC-G7 14-42:
+    cena: 2499
+    rozdzielczosc: 16.0
+    zakres: 200.25600
+    obiektyw: 1
+  Panasonic Lumix DMC-G80:
+    cena: 3849
+    rozdzielczosc: 16.0
+    zakres: 200.25600
+    obiektyw: 1
+  Panasonic Lumix DMC-GX80:
+    cena: 2449
+    rozdzielczosc: 16.0
+    zakres: 200.25600
+    obiektyw: 1
+  Panasonic Lumix DMC-GX800K:
+    cena: 1699
+    rozdzielczosc: 16.84
+    zakres: 100.25600
+    obiektyw: 0
+  Panasonic Lumix DMC-G7:
+    cena: 2499
+    rozdzielczosc: 16.0
+    zakres: 200.25600
+    obiektyw: 1
+#
+# End of Alternatives Section
+#####################################
+
+#####################################
+# Goal Section
+#
+
+
+Goal:
+# The goal spans a tree of criteria and the alternatives
+  name: Zakup aparatu
+  description: >
+    This is a classic single decision maker problem. It models
+    the situation facing by a family that wants to buy a new fridge.
+ 
+  decision-makers:
+    - Ojciec: 0.4
+    - Matka: 0.4
+    - Dziecko: 0.2
+  preferences:
+    # preferences are typically defined pairwise
+    # 1 means: A is equal to B
+    # 9 means: A is highly preferrable to B
+    # 1/9 means: B is highly preferrable to A
+    Ojciec:
+      pairwise:
+        - [Wydajnosc, Jakosc, 3]
+        - [Wydajnosc, Styl, 9]
+        - [Wydajnosc, Cena, 5]
+        - [Jakosc, Styl, 7]
+        - [Jakosc, Cena, 1]
+        - [Styl, Cena, 1/9]
+    Matka:
+      pairwise:
+        - [Wydajnosc, Jakosc, 2]
+        - [Wydajnosc, Styl, 6]
+        - [Wydajnosc, Cena, 1/3]
+        - [Jakosc, Styl, 4]
+        - [Jakosc, Cena, 1/6]
+        - [Styl, Cena, 1/7]
+    Dziecko:
+      pairwise:
+        - [Wydajnosc, Jakosc, 1/2]
+        - [Wydajnosc, Styl, 1/6]
+        - [Wydajnosc, Cena, 1/2]
+        - [Jakosc, Styl, 1/6]
+        - [Jakosc, Cena, 1]
+        - [Styl, Cena, 6]
+  children: 
+    Wydajnosc: 
+      preferences:
+        Ojciec:       
+            pairwiseFunction: 
+                function(a1, a2) min(9, max(1/9, a2$rozdzielczosc/a1$rozdzielczosc))
+        Matka:   
+            scoreFunction:
+                function(a) -a$rozdzielczosc
+        Dziecko:       
+            scoreFunction:
+                function(a) -a$rozdzielczosc
+      children: *alternatives
+    Jakosc: 
+      preferences:
+        Ojciec:
+          # //
+          scoreFunction:
+              function(a) a$zakres
+        Matka:
+          # Komentarz - metoda porownywania (l) w parach
+          pairwiseFunction: 
+              function(a1, a2) min(9, max(1/9, a2$zakres/a1$zakres))
+        Dziecko:
+          # Komentarz - ocena jakosci
+          scoreFunction:
+              function(a) a$zakres
+      children: *alternatives
+    Styl: 
+      preferences:
+        Ojciec:
+          scoreFunction: 
+              function(a) a$obiektyw
+        Matka:
+          scoreFunction: 
+             function(a) a$obiektyw
+        Dziecko:
+          scoreFunction: 
+              function(a) a$obiektyw
+      children: *alternatives
+    Cena: 
+      preferences:
+        Ojciec:
+          # Komentarz - ocena ceny
+          scoreFunction:
+              function(a) -a$cena
+        Matka:
+          # Komentarz - ocena ceny
+          scoreFunction:
+              function(a) -a$cena
+        Dziecko:
+          pairwiseFunction: 
+              function(a1, a2) min(9, max(1/9, a2$cena/a1$cena))
+      children: *alternatives
+
+#
+# End of Goal Section
+#####################################
